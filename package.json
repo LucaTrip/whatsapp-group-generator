@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.3",
+    "lerna": "^6.6.2"
+  },
+  "name": "wa_bot_group",
+  "scripts": {
+    "start": "lerna run start:dev"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
