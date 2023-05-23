@@ -3,34 +3,46 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import * as dotenv from "dotenv";
+import mongoose from "mongoose";
 
 import { kross } from "./kross";
 import { createWhatsappSession } from "./wa";
+import { MongoStore } from "wwebjs-mongo";
 
 dotenv.config();
 
 const corsOptions: cors.CorsOptions = {
-  origin: "*",
+  origin: "http://localhost:3000",
 };
 const app = express();
 const port = 8080;
-const server = http.createServer(app);
-const io = new Server(server, { cors: corsOptions });
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: corsOptions,
+});
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/kross", kross);
 
+// socket connection with client
 io.on("connection", (socket) => {
-  console.log("socket connection...", socket.id);
+  console.log("socket connection with client", socket.id);
 
-  socket.on("connected", () => {
-    console.log("socket connected", socket.id);
-    createWhatsappSession(socket);
+  mongoose.connect(process.env.MONGODB_URI).then(() => {
+    console.log("mongodb connected");
+    const store = new MongoStore({ mongoose });
+
+    socket.emit("mongodb_ready", { status: true });
+
+    socket.on("connected", () => {
+      console.log("socket connected", socket.id);
+      createWhatsappSession(socket, store);
+    });
   });
 });
 
-server.listen(port, () => {
+httpServer.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
 });

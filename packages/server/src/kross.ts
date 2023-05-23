@@ -25,6 +25,7 @@ export async function kross(req: Request, res: Response) {
           date_reservation_from: `${year}-${month}-${day} 00:00`,
           date_reservation_to: `${year}-${month}-${day} 23:59`,
           cod_reservation_status: "CONF",
+          with_rooms: true,
         },
       }
     );
